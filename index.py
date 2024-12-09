@@ -28,7 +28,7 @@ def get_firestore_data():
     try:
         # Reference to the Firestore collection
         collection_ref = db.collection('prints')
-        docs = collection_ref.order_by('createdAt').stream()
+        docs = collection_ref.where('status', '==', 'queued').order_by('createdAt').stream()
 
         # Iterate through documents and print them
         for doc in docs:
