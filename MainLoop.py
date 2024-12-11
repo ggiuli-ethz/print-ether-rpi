@@ -23,28 +23,36 @@ class ExecLoop:
             dsrdtr=True
         )
 
-    def __update_status_to_printed(self, document_id):
+    def __update_status(self, document_id, failed=False):
         doc_ref = self.db.collection(self.uid).document(document_id)
         
         doc_ref.update({
-            'status': 'printed'
+            'status': 'printed' if not failed else 'error'
         })
         
-        print(f"Status updated to 'printed' for document with ID: {document_id}")
+        print(f"Status updated to {'printed' if not failed else 'error'} for document with ID: {document_id}")
 
 
     def __get_firestore_data(self):
         collection_ref = self.db.collection(self.uid)
-        self.posts = collection_ref.where('status', '==', 'queued').order_by('date').stream()
+        docs = collection_ref.where('status', '==', 'queued').order_by('date').stream()
 
-        for doc in self.posts:
-            print(f"Document ID: {doc.id}")
-            print(f"Document Data: {doc.to_dict()}")
+        self.posts = [{'id': doc.id, **doc.to_dict()} for doc in docs]
+
+    def print_post(self, post):
+        try:
+            self.printer.text(post['title'])
+            self.__update_status(post['id'])
+        except:
+            self.__update_status(post['id'], failed=True)
 
 
     def execute(self):
         if (self.internet_connection()):
             self.__get_firestore_data()
+            print(self.posts)
+            for post in self.posts:
+                self.print_post(post)
         else:
             print('No connection, pause')
 
