@@ -2,6 +2,14 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import requests
 from escpos.printer import Serial
+from PIL import Image
+import re
+import base64
+from io import BytesIO
+
+def import_to_pil(data):
+    image_data = re.sub('^data:image/.+;base64,', '', data)
+    return  Image.open(BytesIO(base64.b64decode(image_data)))
 
 class ExecLoop:
 
@@ -41,7 +49,19 @@ class ExecLoop:
 
     def print_post(self, post):
         try:
+            self.printer.set(
+                underline=0,
+                align="left",
+                font="a",
+                width=2,
+                height=2,
+                density=3,
+                invert=0,
+                smooth=False,
+                flip=False,
+            )
             self.printer.text(post['title'])
+            self.print_image(post)
             self.__update_status(post['id'])
         except:
             self.__update_status(post['id'], failed=True)
@@ -55,6 +75,13 @@ class ExecLoop:
                 self.print_post(post)
         else:
             print('No connection, pause')
+            
+    def print_image(self, post):
+        if not post['drawing']:
+            return
+        
+        image: Image = import_to_pil(post['drawing'])
+        self.printer.image(image, impl="bitImageColumn")
 
     def internet_connection(self):
         try:
