@@ -1,4 +1,5 @@
 import firebase_admin
+import logging
 from firebase_admin import credentials, firestore
 import requests
 from escpos.printer import Serial
@@ -6,6 +7,15 @@ from PIL import Image
 import re
 import base64
 from io import BytesIO
+import sys
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter(fmt="%(asctime)s %(name)s.%(levelname)s: %(message)s", datefmt="%Y.%m.%d %H:%M:%S")
+
+handler = logging.StreamHandler(stream=sys.stdout)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 def import_to_pil(data):
     image_data = re.sub('^data:image/.+;base64,', '', data)
@@ -15,6 +25,7 @@ class ExecLoop:
 
     def __init__(self, uid, port):
         cred = credentials.Certificate("screds/key.json")
+        logger.info('Starting application')
         self.app = firebase_admin.initialize_app(cred)
 
         self.posts = []
@@ -38,7 +49,7 @@ class ExecLoop:
             'status': 'printed' if not failed else 'error'
         })
         
-        print(f"Status updated to {'printed' if not failed else 'error'} for document with ID: {document_id}")
+        logger.info(f"Status updated to {'printed' if not failed else 'error'} for document with ID: {document_id}")
 
 
     def __get_firestore_data(self):
@@ -70,11 +81,12 @@ class ExecLoop:
     def execute(self):
         if (self.internet_connection()):
             self.__get_firestore_data()
-            print(self.posts)
+            logger.info('Fetched new posts:')
+            logger.info(self.posts)
             for post in self.posts:
                 self.print_post(post)
         else:
-            print('No connection, pause')
+            logger.warning('No connection, pause')
             
     def print_image(self, post):
         if not post['drawing']:
@@ -91,7 +103,7 @@ class ExecLoop:
             return False    
         
     def __del__(self):
-        print('Deleted App')
+        logger.info('Deleted App')
         try:
             firebase_admin.delete_app(self.app)
         except:
