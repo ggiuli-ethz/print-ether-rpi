@@ -78,7 +78,6 @@ class ExecLoop:
 
             self.printer.set(
                 underline=1,
-                font="b",
             )
             title_str = self.text_wrap(post['title'])
             date_str = self.format_date_stamp(post['date'])
@@ -86,7 +85,7 @@ class ExecLoop:
 
             self.printer.set(
                 underline=0,
-                font="a",
+                font="b",
                 width=1,
                 height=1,
             )
@@ -96,6 +95,7 @@ class ExecLoop:
                 underline=0,
                 width=2,
                 height=2,
+                font='a',
             )
             text_str = self.text_wrap(post['body'])
             self.printer.text('\n')
