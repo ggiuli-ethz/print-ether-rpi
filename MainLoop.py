@@ -74,6 +74,22 @@ class ExecLoop:
                 flip=False,
             )
             self.printer.text('\n')
+            self.printer.set(
+                underline=0,
+                align="center",
+                font="a",
+                width=2,
+                height=2,
+                density=2,
+                invert=0,
+                smooth=False,
+                flip=False,
+            )
+
+            self.printer.set(
+                underline=0,
+                align="left",
+            )
             self.printer.textln('--------------------------------')
 
             self.printer.set(
