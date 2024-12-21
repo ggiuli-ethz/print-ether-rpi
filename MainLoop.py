@@ -173,5 +173,5 @@ class ExecLoop:
 
     def format_date_stamp(self, date_str):
         date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
-        return date_obj.strftime('%M:%H %d/%m/%Y')
+        return date_obj.strftime('%H:%M %d/%m/%Y')
 
