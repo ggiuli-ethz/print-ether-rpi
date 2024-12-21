@@ -34,16 +34,6 @@ class ExecLoop:
         self.uid = uid
         self.db = firestore.client()
 
-        self.printer = Serial(
-            devfile=port,
-            baudrate=9600,
-            bytesize=8,
-            parity='N',
-            stopbits=1,
-            timeout=1.00,
-            dsrdtr=True
-        )
-
     def __update_status(self, document_id, failed=False):
         doc_ref = self.db.collection(self.uid).document(document_id)
         
@@ -62,7 +52,17 @@ class ExecLoop:
 
     def print_post(self, post):
         try:
-            self.printer.set(
+            printer = Serial(
+            devfile=port,
+            baudrate=9600,
+            bytesize=8,
+            parity='N',
+            stopbits=1,
+            timeout=1.00,
+            dsrdtr=True
+            )
+
+            printer.set(
                 underline=0,
                 align="left",
                 font="a",
@@ -73,45 +73,46 @@ class ExecLoop:
                 smooth=False,
                 flip=False,
             )
-            self.printer.text('\n')
-            self.printer.textln('--------------------------------')
+            printer.text('\n')
+            printer.textln('--------------------------------')
 
-            self.printer.set(
+            printer.set(
                 underline=1,
                 font="b",
             )
             title_str = self.text_wrap(post['title'])
             date_str = self.format_date_stamp(post['date'])
-            self.printer.textln(title_str)
+            printer.textln(title_str)
 
-            self.printer.set(
+            printer.set(
                 underline=0,
                 font="a",
                 width=1,
                 height=1,
             )
-            self.printer.textln(date_str)
+            printer.textln(date_str)
 
-            self.printer.set(
+            printer.set(
                 underline=0,
                 width=2,
                 height=2,
             )
             text_str = self.text_wrap(post['body'])
-            self.printer.text('\n')
-            self.printer.textln(text_str)
+            printer.text('\n')
+            printer.textln(text_str)
 
-            self.printer.text('\n')
+            printer.text('\n')
             self.print_image(post)
 
-            self.printer.text('\n')
-            self.printer.textln('--------------------------------')
-            self.printer.text('\n\n')
+            printer.text('\n')
+            printer.textln('--------------------------------')
+            printer.text('\n\n')
 
             self.__update_status(post['id'])
         except:
             self.__update_status(post['id'], failed=True)
-
+        finally:
+            printer.close()
 
     def execute(self):
         if (self.internet_connection()):
