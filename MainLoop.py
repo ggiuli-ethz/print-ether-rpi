@@ -71,8 +71,27 @@ class ExecLoop:
                 smooth=False,
                 flip=False,
             )
-            self.printer.text(post['title'])
+            self.printer.text('\n')
+            self.printer.textln('--------------------------------')
+
+            self.printer.set(
+                underline=1,
+            )
+            self.printer.textln(post['title'])
+
+            self.printer.set(
+                underline=0,
+            )
+            text_str = self.text_wrap(post['body'])
+            self.printer.textln(text_str)
+
+            self.printer.text('\n')
             self.print_image(post)
+
+            self.printer.text('\n')
+            self.printer.textln('--------------------------------')
+            self.printer.text('\n\n')
+            
             self.__update_status(post['id'])
         except:
             self.__update_status(post['id'], failed=True)
@@ -102,6 +121,29 @@ class ExecLoop:
         except requests.ConnectionError:
             return False    
         
+    def text_wrap(self, text, max_length = 32):
+
+        words = text.split()
+        lines = []
+        current_line = ""
+    
+        for word in words:
+
+            if len(current_line) + len(word) + (1 if current_line else 0) > max_length:
+                lines.append(current_line)
+                current_line = word
+            else:
+                if current_line:
+                    current_line += " " + word
+                else:
+                    current_line = word
+    
+        if current_line:
+            lines.append(current_line)
+    
+        return "\n".join(lines)
+
+
     def __del__(self):
         logger.info('Deleted App')
         try:
