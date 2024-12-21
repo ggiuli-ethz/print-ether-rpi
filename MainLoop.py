@@ -105,7 +105,6 @@ class ExecLoop:
             printer.text('\n')
             self.print_image(post, printer)
 
-            printer.text('\n')
             printer.textln('--------------------------------')
             printer.text('\n\n')
 
