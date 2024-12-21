@@ -29,6 +29,7 @@ class ExecLoop:
         cred = credentials.Certificate("screds/key.json")
         logger.info('Starting application')
         self.app = firebase_admin.initialize_app(cred)
+        self.port = port
 
         self.posts = []
         self.uid = uid
@@ -53,7 +54,7 @@ class ExecLoop:
     def print_post(self, post):
         try:
             printer = Serial(
-            devfile=port,
+            devfile=self.port,
             baudrate=9600,
             bytesize=8,
             parity='N',
@@ -102,7 +103,7 @@ class ExecLoop:
             printer.textln(text_str)
 
             printer.text('\n')
-            self.print_image(post)
+            self.print_image(post, printer)
 
             printer.text('\n')
             printer.textln('--------------------------------')
@@ -124,12 +125,12 @@ class ExecLoop:
         else:
             logger.warning('No connection, pause')
             
-    def print_image(self, post):
+    def print_image(self, post, printer):
         if not post['drawing']:
             return
         
         image: Image = import_to_pil(post['drawing'])
-        self.printer.image(image, impl="bitImageColumn")
+        printer.image(image, impl="bitImageColumn")
 
     def internet_connection(self):
         try:
