@@ -8,6 +8,8 @@ import re
 import base64
 from io import BytesIO
 import sys
+from datetime import datetime
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -76,13 +78,27 @@ class ExecLoop:
 
             self.printer.set(
                 underline=1,
+                font="b",
             )
-            self.printer.textln(post['title'])
+            title_str = self.text_wrap(post['title'])
+            date_str = self.format_date_stamp(post['date'])
+            self.printer.textln(title_str)
 
             self.printer.set(
                 underline=0,
+                font="a",
+                width=1,
+                height=1,
+            )
+            self.printer.textln(date_str)
+
+            self.printer.set(
+                underline=0,
+                width=2,
+                height=2,
             )
             text_str = self.text_wrap(post['body'])
+            self.printer.text('\n')
             self.printer.textln(text_str)
 
             self.printer.text('\n')
@@ -91,7 +107,7 @@ class ExecLoop:
             self.printer.text('\n')
             self.printer.textln('--------------------------------')
             self.printer.text('\n\n')
-            
+
             self.__update_status(post['id'])
         except:
             self.__update_status(post['id'], failed=True)
@@ -155,4 +171,8 @@ class ExecLoop:
             self.printer.close()
         except:
             pass
+
+    def format_date_stamp(self, date_str):
+        date_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+        return date_obj.strftime('%M:%H %d/%m/%Y')
 
