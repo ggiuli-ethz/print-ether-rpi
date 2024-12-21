@@ -105,7 +105,7 @@ class ExecLoop:
             self.print_image(post)
 
             self.printer.text('--------------------------------')
-            self.printer.text('<<< END\n\n')
+            self.printer.text('<<< END\n\n\n')
 
             self.__update_status(post['id'])
         except:
