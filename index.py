@@ -1,4 +1,4 @@
-from MainLoop import ExecLoop
+from main_loop import ExecLoop
 from time import sleep
 
 ml = None
@@ -13,4 +13,4 @@ while True:
         ml = None
         sleep(60)
 
-    sleep(30)
+    sleep(10)

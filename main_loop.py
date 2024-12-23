@@ -1,14 +1,17 @@
 import firebase_admin
-import logging
 from firebase_admin import credentials, firestore
-import requests
+
 from escpos.printer import Serial
-from PIL import Image
-import re
-import base64
-from io import BytesIO
-import sys
 from datetime import datetime
+from io import BytesIO
+from PIL import Image
+
+import logging
+import requests
+import base64
+import sys
+import re
+
 
 
 logger = logging.getLogger(__name__)
@@ -62,6 +65,9 @@ class ExecLoop:
 
     def print_post(self, post):
         try:
+            if self.printer.paper_status() == 0:
+                raise Exception
+
             self.printer.set(
                 underline=0,
                 align="left",
@@ -79,9 +85,7 @@ class ExecLoop:
             self.printer.set(
                 underline=1,
             )
-            title_str = self.text_wrap(post['title'])
-            date_str = self.format_date_stamp(post['date'])
-            self.printer.textln(title_str)
+            self.print_wrapped(post['title'])
 
             self.printer.set(
                 underline=0,
@@ -89,7 +93,7 @@ class ExecLoop:
                 width=1,
                 height=1,
             )
-            self.printer.textln(date_str)
+            self.print_wrapped(post['date'])
 
             self.printer.set(
                 underline=0,
@@ -97,9 +101,8 @@ class ExecLoop:
                 height=2,
                 font='a',
             )
-            text_str = self.text_wrap(post['body'])
             self.printer.text('\n')
-            self.printer.textln(text_str)
+            self.print_wrapped(post['body'])
 
             self.printer.text('\n')
             self.print_image(post)
@@ -111,6 +114,9 @@ class ExecLoop:
         except:
             self.__update_status(post['id'], failed=True)
 
+    def print_wrapped(self, text):
+        text_str = self.text_wrap(text)
+        self.printer.textln(text_str)
 
     def execute(self):
         if (self.internet_connection()):
