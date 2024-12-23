@@ -93,7 +93,8 @@ class ExecLoop:
                 width=1,
                 height=1,
             )
-            self.print_wrapped(post['date'])
+            date_str = self.format_date_stamp(post['date'])
+            self.print_wrapped(date_str)
 
             self.printer.set(
                 underline=0,

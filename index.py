@@ -13,4 +13,4 @@ while True:
         ml = None
         sleep(60)
 
-    sleep(10)
+    sleep(30)
